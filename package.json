@@ -1,0 +1,27 @@
+{
+  "name": "click",
+  "version": "1.0.0",
+  "description": "",
+  "main": "background.js",
+  "scripts": {
+    "build": "npm run prebuild && npx tsc --build tsconfig.json",
+    "watch": "npm run prewatch && npx tsc -w --build tsconfig.json",
+    "clean": "del /q dist && copy manifest.json dist",
+    "prebuild": "npm run clean",
+    "prewatch": "npm run clean"
+  },
+  "devDependencies": {
+    "@types/chrome": "0.0.100",
+    "@types/jquery": "^3.3.33",
+    "@types/node": "14.11.5",
+    "copy-webpack-plugin": "^6.1.0",
+    "ts-loader": "^6.2.1",
+    "typescript": "4.0.3",
+    "webpack": "^4.44.1",
+    "webpack-cli": "~3.3.11",
+    "webpack-merge": "~4.2.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

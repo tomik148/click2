@@ -1,0 +1,24 @@
+{
+    "name": "Click",
+    "version": "1.0",
+    "description": "Extension!",
+    "permissions": [ "activeTab", "tabs", "declarativeContent", "storage", "webNavigation", "notifications" ,"*://*/*"],
+    "background": {
+        "scripts": ["background.js"]
+    },
+    "page_action": {
+        "default_popup": "popup.html"
+    },
+    "web_accessible_resources": [
+        "readers/gitLabReader.js",
+        "gitLabWriter.js",
+        "readers/gitHubReader.js",
+        "parsers/csParser.js",
+        "clickCss.css"
+      ],
+    "icons": {  "16": "assets/imgs/icon-16.png",
+                "48": "assets/imgs/icon-48.png",
+                "128": "assets/imgs/icon-128.png" 
+    },
+    "manifest_version": 2
+}
