@@ -13,7 +13,7 @@ document.getElementById('submit').onclick = function(element) {
   var cc = document.getElementById('cc');
   var ac = document.getElementById('ac');
   var hc = document.getElementById('hc');
-
+/*
   var reg = /#[\dABCDF]{6}/i;
   if(reg.test(cc.value) || cc.value === ""){
     cc.setCustomValidity("");
@@ -36,5 +36,5 @@ document.getElementById('submit').onclick = function(element) {
   if(document.getElementById('form').checkValidity()){
     chrome.runtime.sendMessage({ id: "changeColors", cc: cc.value, ac: ac.value, hc: hc.value});
   }
-
+*/
 };

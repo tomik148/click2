@@ -1,41 +1,48 @@
-chrome.runtime.onInstalled.addListener(function() {
+chrome.runtime.onInstalled.addListener(function() 
+{
     //chrome.storage.sync.set({color: '#3aa757'}, function() {
     //console.log('The color is green.');
     //});
     
-  chrome.webNavigation.onCommitted.addListener(async function(ev) {
+  chrome.webNavigation.onCommitted.addListener(async function(ev) 
+  {
     var host = new URL(ev.url);
-    if (!(host.href.startsWith( "http://") || host.href.startsWith( "https://"))) {
+    if (!(host.href.startsWith( "http://") || host.href.startsWith( "https://"))) 
+    {
       return;
     }
-    if (host.host === new URL("https://github.com/").host) {
+    if (host.host === new URL("https://github.com/").host) 
+    {
       var isGitHub = true;
       chrome.tabs.executeScript(ev.tabId, { file: 'gitHubReader.js' });
       chrome.tabs.executeScript(ev.tabId, { file: 'csParser.js' });
       return;
     }
-    if (/https?:\/\/.*?\/(.*)\/(blob|tree)\/(.*?)(?:\/|$)/.test(ev.url)) {
+    if (/https?:\/\/.*?\/([^\/]*)\/([^\/]*)\/.*(blob|tree)\/(.*?)(?:\/|$)/.test(ev.url)) 
+    {
       var isGitLab = true;
-      let res = ev.url.match(/https?:\/\/.*?\/(.*)\/(blob|tree)\/(.*?)(?:\/|$)/);
+      let res = ev.url.match(/https?:\/\/.*?\/([^\/]*)\/([^\/]*)\/.*(blob|tree)\/(.*?)(?:\/|$)/);
       //0: "https://code.evolio.cz/evolio/edata/tree/master"
-      //1: "evolio/edata" - reporitory
-      //2: "tree" - tree or blob
-      //3: "master" - branch
-      let reporitory = res[1];
-      reporitory = reporitory.replace("/", "%2F");
+      //1: "evolio" - reporitory1
+      //2: "edata" - reporitory2
+      //3: "tree" - tree or blob
+      //4: "master" - branch
+      let reporitory = res[1] + "%2F" + res[2];
+      //reporitory = reporitory.replace("/", "%2F");
 
-      let key = host.host + "/" + reporitory + "/" + res[3];
+      let key = host.host + "/" + reporitory + "/" + res[4];
 
       chrome.storage.local.get(key,async (ob)=>{
         console.log(ob);
         if (Object.keys(ob).length === 0 && ob.constructor === Object) {
           await chrome.tabs.executeScript(ev.tabId, { file: 'messagePasser.js', runAt: "document_start" });
-          await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('gitLabReader.js'), runAt: "document_start" });
-          await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('csParser.js') , runAt: "document_start" });
-          await chrome.tabs.executeScript(ev.tabId, { code: injectCode('getAllFiles("' + host.host + '", "' + reporitory + '", "' + res[3] + '");'), runAt: "document_idle" });
+          await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('readers/gitLabReader.js'), runAt: "document_start" });
+          await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('parsers/csParser.js') , runAt: "document_start" });
+          await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('helpers/fetchHelper.js') , runAt: "document_start" });
+          await chrome.tabs.executeScript(ev.tabId, { code: injectCode('console.log(await (new Readers.GitLabReader().getAllFiles("' + host.host + '", "' + reporitory + '", "' + res[4] + '")));'), runAt: "document_idle" });
         }
         else{
-          if (res[2] === "blob") {
+          if (res[3] === "blob") {
             await chrome.tabs.executeScript(ev.tabId, { code: injectCode('formatedClasses = ' + JSON.stringify(ob[key]) + ';'), runAt: "document_start" });
             await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('gitLabWriter.js') , runAt: "document_start" });
             getStyle((style)=>{

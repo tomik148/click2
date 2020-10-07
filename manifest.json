@@ -11,7 +11,7 @@
     },
     "web_accessible_resources": [
         "readers/gitLabReader.js",
-        "gitLabWriter.js",
+        "writer/gitLabWriter.js",
         "readers/gitHubReader.js",
         "parsers/csParser.js",
         "clickCss.css"

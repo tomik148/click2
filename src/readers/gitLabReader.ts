@@ -1,9 +1,9 @@
 /// <reference path="../models/File.ts" />
-/// <reference path="../helpers/fechHelper.ts" />
+/// <reference path="../helpers/fetchHelper.ts" />
 /// <reference path="../parsers/IParser.ts" />
 namespace Readers
 {
-    class GitLabReader implements IReader
+    export class GitLabReader implements IReader
     {
         foldersToSearch = Array<Models.GitLabFolder>();
         filesToProcess = Array<Models.GitLabFolder>();
@@ -22,7 +22,7 @@ namespace Readers
             
             let folders = await Helpers.http<Models.GitLabFolder[]>(request);
 
-            window.postMessage({ type: "FROM_PAGE", data: {id: "classParsingStarted", notificationId: url, message: "Parsing started"}},"");
+            //window.postMessage({ type: "FROM_PAGE", data: {id: "classParsingStarted", notificationId: url, message: "Parsing started"}},"");
 
             for (let folder of folders.parsedBody) {
                 this.sortItem(folder);
