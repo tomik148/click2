@@ -11,6 +11,7 @@ chrome.runtime.onInstalled.addListener(function()
     {
       return;
     }
+    //console.log(host);
     if (host.host === new URL("https://github.com/").host) 
     {
       var isGitHub = true;
@@ -18,28 +19,34 @@ chrome.runtime.onInstalled.addListener(function()
       chrome.tabs.executeScript(ev.tabId, { file: 'csParser.js' });
       return;
     }
-    if (/https?:\/\/.*?\/([^\/]*)\/([^\/]*)\/.*(blob|tree)\/(.*?)(?:\/|$)/.test(ev.url)) 
+    if (/https?:\/\/(.*?)\/(.*)\/(blob|tree)\/(.*?)$/s.test(ev.url))
     {
       var isGitLab = true;
-      let res = ev.url.match(/https?:\/\/.*?\/([^\/]*)\/([^\/]*)\/.*(blob|tree)\/(.*?)(?:\/|$)/);
+      let res = ev.url.match(/https?:\/\/(.*?)\/(.*)\/(blob|tree)\/(.*?)$/s);
+      //console.log(res);
       //0: "https://code.evolio.cz/evolio/edata/tree/master"
-      //1: "evolio" - reporitory1
-      //2: "edata" - reporitory2
+      //1: "code.evolio.cz" - host
+      //2: "evolio/edata" - repository
       //3: "tree" - tree or blob
       //4: "master" - branch
-      let reporitory = res[1] + "%2F" + res[2];
-      //reporitory = reporitory.replace("/", "%2F");
+      let repository = res[2];
+      repository = repository.replace("/", "%2F");
 
-      let key = host.host + "/" + reporitory + "/" + res[4];
+      let key = res[1] + "/" + repository + "/" + res[4];
 
       chrome.storage.local.get(key,async (ob)=>{
-        console.log(ob);
+        //console.log(ob);
+        //console.log(Object.keys(ob).length === 0);
+        //console.log(ob.constructor === Object);
         if (Object.keys(ob).length === 0 && ob.constructor === Object) {
           await chrome.tabs.executeScript(ev.tabId, { file: 'messagePasser.js', runAt: "document_start" });
           await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('readers/gitLabReader.js'), runAt: "document_start" });
-          await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('parsers/csParser.js') , runAt: "document_start" });
+          await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('models/File.js'), runAt: "document_start" });
+          //await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('parsers/csParser.js') , runAt: "document_start" });
+          //await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('parsers/phpParser.js') , runAt: "document_start" });
           await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('helpers/fetchHelper.js') , runAt: "document_start" });
-          await chrome.tabs.executeScript(ev.tabId, { code: injectCode('console.log(await (new Readers.GitLabReader().getAllFiles("' + host.host + '", "' + reporitory + '", "' + res[4] + '")));'), runAt: "document_idle" });
+          await chrome.tabs.executeScript(ev.tabId, { code: injectCode('var reader = new Readers.GitLabReader(); reader.getAllFiles((await reader.getAllFolders("' + host.host + '", "' + repository + '", "' + res[4] + '")));'), runAt: "document_idle" });
+
         }
         else{
           if (res[3] === "blob") {
@@ -76,7 +83,6 @@ chrome.runtime.onInstalled.addListener(function()
     }
     */
     return;
-    var b = 5;
   });
 
   function injectJsFile(fileName) {
@@ -179,6 +185,9 @@ chrome.runtime.onInstalled.addListener(function()
       if (message.id == "classParsingDone"){
         chrome.notifications.clear(message.notificationId,(a)=>console.log(a));
         chrome.notifications.create(message.notificationId, {type:"basic", title:"Click", iconUrl:"icon-128.png", message: "Done", priority: 2},(a)=>console.log(a));
+      }
+      if (message.id == "parseFile"){
+        console.log(message);
       }
 
   });

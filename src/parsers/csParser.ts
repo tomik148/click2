@@ -1,20 +1,14 @@
 namespace Parsers
 {
-    enum ContextTypes
+    export class CsParser extends BaseParser
     {
-        "NameSpace"=1, "Class"=2, "Method"=3, "Property"=4, "Field"=5, "Enum"=6, "Interface"=7
-    }
-
-    export class CsParser //implements IParser
-    {
-        
-        static classes = [];
-        static contexts = [];
+        classes : string[] = [];
+        contexts : any[] = [];
 
         //const contextTypes = Object.freeze({"NameSpace":1, "Class":2, "Method":3, "Property":4, "Field":5, "Enum":6, "Interface":7})
 
 
-        static async getClasses(fileName, fileText) 
+        async getClasses(fileName, fileText)
         {
             if(fileName.endsWith(".cs"))
             {
@@ -37,7 +31,7 @@ namespace Parsers
             
         }
 
-        static async processContext(context) 
+        async processContext(context)
         {
             let add = true;
             if (context.type === ContextTypes.NameSpace) {
@@ -65,7 +59,7 @@ namespace Parsers
             }
         }
 
-        static async getContexts(text, contextParent) 
+        async getContexts(text, contextParent)
         {
             var last = 0;
             var identifier = "";
@@ -167,25 +161,25 @@ namespace Parsers
             return Contexts;
         }
 
-        static removeComents(fileText)
+        removeComents(fileText)
         {
             const regex = /\/\*.*?\*\/|\/\/.*?$/gsm;
             return fileText.replace(regex, "");
         }
 
-        static removeStrings(fileText)
+        removeStrings(fileText)
         {
             const regex = /".*?"/gs;
             return fileText.replace(regex, "\"\"");
         }
 
-        static removeUsings(fileText)
+        removeUsings(fileText)
         {
             const regex = /using .*?;/g;
             return fileText.replace(regex, "");
         }
 
-        static async getContextType(context) 
+        async getContextType(context)
         {
             if (context.contextParent === undefined) 
             {
@@ -245,7 +239,7 @@ namespace Parsers
             return undefined;
         }
 
-        static async getName(context) 
+        async getName(context)
         {
             if (context.type === ContextTypes.Class) 
             {

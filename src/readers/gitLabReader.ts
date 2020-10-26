@@ -3,43 +3,32 @@
 /// <reference path="../parsers/IParser.ts" />
 namespace Readers
 {
+    import BaseParser = Parsers.BaseParser;
+    import GitLabFolder = Models.GitLabFolder;
+    import GitLabFile = Models.GitLabFile;
+
     export class GitLabReader implements IReader
     {
-        foldersToSearch = Array<Models.GitLabFolder>();
-        filesToProcess = Array<Models.GitLabFolder>();
-        
+        foldersToSearch : GitLabFolder[] = Array<GitLabFolder>();
+        filesToProcess : GitLabFolder[] = Array<GitLabFolder>();
+
+        url : string;
+
         //http://code.evolio.cz/api/v4/projects/evolio%2Fefilters/repository/tree?path=EFilters.ViewModels/ViewModel
         //url: code.evolio.cz
         //project: evolio%2Fefilters
-        async getAllFiles(url : string, project : string, branch : string)
+        async getAllFolders(url : string, project : string, branch : string) : Promise<GitLabFolder[]>
         {
-            let treeUrl = 'https://' + url + '/api/v4/projects/' + project + '/repository/';
-            
-            //let key = url + "/" + project + "/" + branch;
-            let request = new Request(treeUrl + 'tree?per_page=100');
-            //let response = await fetch(request,{mode:"cors" ,credentials: "include",  headers: {Accept: 'application/json', 'Content-Type': 'application/json',}})
-            //let json = await response.json();
-            
-            let folders = await Helpers.http<Models.GitLabFolder[]>(request);
+            this.url = 'https://' + url + '/api/v4/projects/' + project + '/repository/';
 
-            //window.postMessage({ type: "FROM_PAGE", data: {id: "classParsingStarted", notificationId: url, message: "Parsing started"}},"");
+            let rootFile = new Models.GitLabFolder();
+            rootFile.path = "";
 
-            for (let folder of folders.parsedBody) {
-                this.sortItem(folder);
-            }
+            this.foldersToSearch.push(rootFile);
 
-            /*for (const element in json) 
-            {
-                if (Object.prototype.hasOwnProperty.call(json, element)) 
-                {
-                    this.sortItem(json[element]);
-                }
-            } */
-
-            
             while(this.foldersToSearch.length != 0)
             {
-                await this.searchFolders(treeUrl + 'tree', this.foldersToSearch.pop());
+                await this.searchFolders(this.url + 'tree', this.foldersToSearch.pop());
             }
             return this.filesToProcess;
 
@@ -82,49 +71,66 @@ namespace Readers
             return url + "/" + project.replace("%2F", "/") + "/blob/" + branch + "/" + cl.fileName;
         }
 
-        sortItem(item : Models.GitLabFolder){
+        blackListedFolders = ["vendor", "assets"];
+
+        sortItem(item : GitLabFolder){
             if(item.type == "blob"){
                 this.filesToProcess.push(item);
             }
             else if(item.type == "tree"){
+                for (const folder of this.blackListedFolders) {
+                    if(item.path.endsWith(folder)){
+                        return;
+                    }
+                }
                 this.foldersToSearch.push(item);
             }
         }
 
-        async searchFolders(url: string, folder: { path: string; }){
-            var more = true;
-            var page = 1;
+        async searchFolders(url: string, folder : GitLabFolder){
+            let more = true;
+            let page = 1;
             while(more){
                 let treeUrl = url + '?path=' + folder.path + "&per_page=100&page=" + page;
                 page++;
                 let request = new Request(treeUrl);
-                let response = await fetch(request,{mode:"cors" ,credentials: "include",  headers: {Accept: 'application/json', 'Content-Type': 'application/json'}})
-                let json = await response.json();
-                more = json.length == 100;
-                for (var element of json) {
-                    this.sortItem(element);
+                let folders = await Helpers.http<Models.GitLabFolder[]>(request);
+                more = folders.parsedBody.length == 100;
+                for (let folder of folders.parsedBody) {
+                    this.sortItem(folder);
                 }
             }
         }
 
-        blackListedExtensions = [".ico", ".gitattributes", ".gitignore", ".config", ".docx", ".ttf", ".licx", ".xaml", ".sln", ".csproj", ".zip"];
+        async getAllFiles(filesToProcess : GitLabFolder[]) : Promise<void>
+        {
+            for (let file of filesToProcess)
+            {
+                await this.processFile(this.url + 'blobs', file);
+            }
+        }
 
-        async processFile(url: string, file: { path: string; id: string; }){
+        blackListedExtensions = [".conf", ".env", ".htaccess", ".txt", ".neon", ".lock", ".json", ",.md", ".yml", "Dockerfile", ".latte", ".ico", ".gitattributes", ".gitignore", ".config", ".docx", ".ttf", ".licx", ".xaml", ".sln", ".csproj", ".zip"];
+
+        async processFile(url: string, file: GitLabFolder){
             for (const extension of this.blackListedExtensions) {
                 if(file.path.endsWith(extension)){
                     return;
                 }
             }
-            let treeUrl = url + '/' + file.id;
+            let treeUrl = url  + '/' + file.id;
             let request = new Request(treeUrl);
             //console.log(file);
-            let response = await fetch(request,{mode:"cors" ,credentials: "include",  headers: {Accept: 'application/json', 'Content-Type': 'application/json'}})
-            let json = await response.json();
-            let text = this.b64DecodeUnicode(json.content);
-            if(file.path.endsWith(".cs"))
+            //let response = await fetch(request,{mode:"cors" ,credentials: "include",  headers: {Accept: 'application/json', 'Content-Type': 'application/json'}})
+            let gitLabFile = (await Helpers.http<GitLabFile>(request)).parsedBody;
+            //let text = this.b64DecodeUnicode(gitLabFile.content);
+
+            window.postMessage({ type: "FROM_PAGE", data: {id: "parseFile", filename: file.path, file: file, folder: gitLabFile, url: treeUrl}},"*");
+            /*let parser = BaseParser.GetParser(file.path.split(".").pop());
+            if (parser != null)
             {
-                await Parsers.CsParser.getClasses(file.path, text)
-            }
+                await parser.getClasses(file.path, text)
+            }*/
         }
 
         ///from----https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
@@ -133,9 +139,6 @@ namespace Readers
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
             }).join(''))
         }
-
-
-
         //getAllFiles("code.evolio.cz","evolio%2Fefilters");
     }
 }

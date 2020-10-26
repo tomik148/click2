@@ -3,7 +3,8 @@ namespace Readers
 {
     export interface IReader
     {
-        getAllFiles(url : string, project : string, branch : string) : Promise<Models.GitLabFolder[]>;
-        
+        getAllFiles(filesToProcess : Models.GitLabFolder[]) : Promise<void>;
+        getAllFolders(url : string, project : string, branch : string) : Promise<Models.GitLabFolder[]>;
+
     }
 } 

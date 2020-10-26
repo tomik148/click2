@@ -14,6 +14,9 @@
         "writer/gitLabWriter.js",
         "readers/gitHubReader.js",
         "parsers/csParser.js",
+        "parsers/phpParser.js",
+        "helpers/fetchHelper.js",
+        "models/File.js",
         "clickCss.css"
       ],
     "icons": {  "16": "assets/imgs/icon-16.png",

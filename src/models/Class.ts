@@ -8,9 +8,9 @@ namespace Models
             this.url = url;
             this.line = line;
         }
-        name: string; 
-        fullName: string; 
 
+        name: string; 
+        fullName: string;
         url: URL; 
         line: number;
     }
