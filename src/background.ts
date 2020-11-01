@@ -1,4 +1,4 @@
-chrome.runtime.onInstalled.addListener(function() 
+chrome.runtime.onInstalled.addListener(function()
 {
     //chrome.storage.sync.set({color: '#3aa757'}, function() {
     //console.log('The color is green.');
@@ -30,6 +30,7 @@ chrome.runtime.onInstalled.addListener(function()
       //3: "tree" - tree or blob
       //4: "master" - branch
       let repository = res[2];
+      repository = repository.replace("/-", "");
       repository = repository.replace("/", "%2F");
 
       let key = res[1] + "/" + repository + "/" + res[4];
@@ -179,7 +180,7 @@ chrome.runtime.onInstalled.addListener(function()
         //console.log(message.notificationId);
         console.log(message.message);
         console.log(message.progress);
-        
+
         chrome.notifications.update(message.notificationId, {message: message.message, progress:message.progress},(a)=>console.log(a));
       }
       if (message.id == "classParsingDone"){
@@ -187,7 +188,15 @@ chrome.runtime.onInstalled.addListener(function()
         chrome.notifications.create(message.notificationId, {type:"basic", title:"Click", iconUrl:"icon-128.png", message: "Done", priority: 2},(a)=>console.log(a));
       }
       if (message.id == "parseFile"){
-        console.log(message);
+        //console.log(message);
+        let fileName = message.filename;
+        let folder = message.folder;
+        let file = message.file;
+        let url = message.url;
+        console.log(folder);
+        console.log(file);
+        console.log(fileName.split(".").pop());
+        Parsers.BaseParser.GetParser(fileName.split(".").pop());
       }
 
   });

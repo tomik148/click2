@@ -5,7 +5,7 @@
   "main": "background.js",
   "scripts": {
     "build": "npm run prebuild && npx tsc --build tsconfig.json",
-    "watch": "npm run prewatch && npx tsc -w --build tsconfig.json",
+    "watch": "npm run prewatch && npx tsc --build -w tsconfig.json",
     "clean": "del /q dist && copy manifest.json dist",
     "prebuild": "npm run clean",
     "prewatch": "npm run clean"

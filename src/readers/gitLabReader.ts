@@ -15,6 +15,7 @@ namespace Readers
         url : string;
 
         //http://code.evolio.cz/api/v4/projects/evolio%2Fefilters/repository/tree?path=EFilters.ViewModels/ViewModel
+        //http://https://gitlab.com/api/v4/projects/spix%2Fsteelboo.com/repository/tree?path=
         //url: code.evolio.cz
         //project: evolio%2Fefilters
         async getAllFolders(url : string, project : string, branch : string) : Promise<GitLabFolder[]>
@@ -26,36 +27,26 @@ namespace Readers
 
             this.foldersToSearch.push(rootFile);
 
+            /*
             while(this.foldersToSearch.length != 0)
             {
                 await this.searchFolders(this.url + 'tree', this.foldersToSearch.pop());
             }
-            return this.filesToProcess;
-
-            /*
-            for (const id in this.filesToProcess) 
-            {
-                let p = Math.trunc( (id / this.filesToProcess.length) * 100 );
-                //console.log(p);
-                //console.log(classes.length);
-                if (p % 10 === 0) {
-                window.postMessage({ type: "FROM_PAGE", data: {id: "classParsingUpdate", notificationId: url, progress:p, message: "Found " + classes.length + " classes!"}},"");
-                }
-                await this.processFile(treeUrl + 'blobs', this.filesToProcess[id]);
-            }   
-            //console.log(classes);
-            //console.log(contexts);
-            
-            const formatedClasses = [];
-            for (const cl of classes) {
-                formatedClasses.push({name: cl.name, fullName: this.getFullName(cl), url: this.getURL(cl, url, project, branch), line: cl.line });
-            }
-            //console.log(formatedClasses);
-            //chrome.runtime.sendMessage("phicehfclmfgkellhdcegnkibnnjaifl", {id: "saveClasses", key: url + "/" + project + "/" + branch, classes: JSON.stringify(formatedClasses)});
-            window.postMessage({ type: "FROM_PAGE", data: {id: "saveClasses", key: key, classes: JSON.stringify(formatedClasses)} },"*");
-            window.postMessage({ type: "FROM_PAGE", data: {id: "classParsingStoped", notificationId: url}},"*");
-            window.postMessage({ type: "FROM_PAGE", data: {id: "classParsingDone", notificationId: url+"_D"}},"*");
             */
+
+            let promises : Promise<void>[] = [];
+            do {
+               let promise = this.searchFolders(this.url + 'tree', this.foldersToSearch.pop());
+               promises.push(promise);
+               if (this.foldersToSearch.length === 0){
+                   await Promise.all(promises);
+                   promises = [];
+                   if (this.foldersToSearch.length === 0){
+                       break;
+                   }
+               }
+            } while (true);
+            return this.filesToProcess;
         }
 
         getFullName(cl: { contextParent: any; name: string; }) {
@@ -104,10 +95,13 @@ namespace Readers
 
         async getAllFiles(filesToProcess : GitLabFolder[]) : Promise<void>
         {
+            console.log(filesToProcess);
+            let promises : Promise<void>[] = [];
             for (let file of filesToProcess)
             {
-                await this.processFile(this.url + 'blobs', file);
+                promises.push(this.processFile(this.url + 'blobs', file));
             }
+            await Promise.all(promises);
         }
 
         blackListedExtensions = [".conf", ".env", ".htaccess", ".txt", ".neon", ".lock", ".json", ",.md", ".yml", "Dockerfile", ".latte", ".ico", ".gitattributes", ".gitignore", ".config", ".docx", ".ttf", ".licx", ".xaml", ".sln", ".csproj", ".zip"];
@@ -124,7 +118,7 @@ namespace Readers
             //let response = await fetch(request,{mode:"cors" ,credentials: "include",  headers: {Accept: 'application/json', 'Content-Type': 'application/json'}})
             let gitLabFile = (await Helpers.http<GitLabFile>(request)).parsedBody;
             //let text = this.b64DecodeUnicode(gitLabFile.content);
-
+            gitLabFile.content = this.b64DecodeUnicode(gitLabFile.content);
             window.postMessage({ type: "FROM_PAGE", data: {id: "parseFile", filename: file.path, file: file, folder: gitLabFile, url: treeUrl}},"*");
             /*let parser = BaseParser.GetParser(file.path.split(".").pop());
             if (parser != null)
