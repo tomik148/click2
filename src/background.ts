@@ -46,7 +46,8 @@ chrome.runtime.onInstalled.addListener(function()
           //await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('parsers/csParser.js') , runAt: "document_start" });
           //await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('parsers/phpParser.js') , runAt: "document_start" });
           await chrome.tabs.executeScript(ev.tabId, { code: injectJsFile('helpers/fetchHelper.js') , runAt: "document_start" });
-          await chrome.tabs.executeScript(ev.tabId, { code: injectCode('var reader = new Readers.GitLabReader(); reader.getAllFiles((await reader.getAllFolders("' + host.host + '", "' + repository + '", "' + res[4] + '")));'), runAt: "document_idle" });
+          //await chrome.tabs.executeScript(ev.tabId, { code: injectCode('var reader = new Readers.GitLabReader(); reader.getAllFiles((await reader.getAllFolders("' + host.host + '", "' + repository + '", "' + res[4] + '")));'), runAt: "document_idle" });
+          await chrome.tabs.executeScript(ev.tabId, { code: injectCode('new Readers.GitLabReader().do("' + host.host + '", "' + repository + '", "' + res[4] + '");'), runAt: "document_idle" });
 
         }
         else{

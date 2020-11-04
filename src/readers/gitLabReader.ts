@@ -14,6 +14,11 @@ namespace Readers
 
         url : string;
 
+        async do(url : string, project : string, branch : string) : Promise<void>
+        {
+            await this.getAllFiles((await this.getAllFolders(url, project, branch)));
+        }
+
         //http://code.evolio.cz/api/v4/projects/evolio%2Fefilters/repository/tree?path=EFilters.ViewModels/ViewModel
         //http://https://gitlab.com/api/v4/projects/spix%2Fsteelboo.com/repository/tree?path=
         //url: code.evolio.cz
@@ -95,7 +100,7 @@ namespace Readers
 
         async getAllFiles(filesToProcess : GitLabFolder[]) : Promise<void>
         {
-            console.log(filesToProcess);
+            //console.log(filesToProcess);
             let promises : Promise<void>[] = [];
             for (let file of filesToProcess)
             {
