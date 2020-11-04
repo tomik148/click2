@@ -21,9 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="76d1fb54-667e-4200-ac32-0cb6d0d3b013" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/background.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/background.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/messagePasser.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/messagePasser.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/readers/gitLabReader.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/readers/gitLabReader.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -131,7 +128,14 @@
       <option name="project" value="LOCAL" />
       <updated>1603675953783</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="aaaaaa">
+      <created>1604504220282</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1604504220282</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -151,7 +155,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="rewritten reader" />
-    <option name="LAST_COMMIT_MESSAGE" value="rewritten reader" />
+    <MESSAGE value="aaaaaa" />
+    <option name="LAST_COMMIT_MESSAGE" value="aaaaaa" />
   </component>
   <component name="WindowStateProjectService">
     <state x="552" y="161" key="#Plugins" timestamp="1604238967892">
@@ -206,10 +211,11 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="461" y="165" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1603649856540" />
-    <state x="552" y="253" key="Vcs.Push.Dialog.v2" timestamp="1603676017358">
+    <state x="552" y="253" key="Vcs.Push.Dialog.v2" timestamp="1604504544442">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="552" y="253" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1603676017358" />
+    <state x="552" y="253" key="Vcs.Push.Dialog.v2/1920.0.1280.693/0.0.1920.1040@0.0.1920.1040" timestamp="1604504544442" />
     <state x="739" y="364" key="cloudConfig.PluginsDialog" timestamp="1604238988905">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
